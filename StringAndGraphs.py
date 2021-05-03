@@ -97,8 +97,7 @@ class Graph():
         nodenum = node.index
         # Заставляет массив отслеживать расстояние от одного до любого узла
         # в self.nodes. Инициализирует до бесконечности для всех узлов, кроме 
-        # начального узла, сохраняет "путь", связанный с расстоянием. 
-        # Индекс 0 = расстояние, индекс 1 = перескоки узла
+        # начального узла
         dist = [None] * len(self.nodes)
         for i in range(len(dist)):
             dist[i] = float("inf")
@@ -121,6 +120,9 @@ class Graph():
                     min_node = n
             
             # Добавляет мин. расстояние узла до увиденного, убирает очередь
+            if min_node == None:
+                return dist
+            
             queue.remove(min_node)
             seen.add(min_node)
             # Получает все следующие перескоки
@@ -134,6 +136,7 @@ class Graph():
                 tot_dist = edge.weight + min_dist
                 if tot_dist < dist[edge.to_node.index]:
                     dist[edge.to_node.index] = tot_dist
+
         return dist
 
           
@@ -143,8 +146,29 @@ def only_dist_to_letter(graph, dist, letter):
         if graph.nodes[i].letter == letter:
             new_dist.append(dist[i])
     return new_dist
-         
+
+def Get_node_connections(node, visited):
+    for edge in node.edges:
+        if edge.to_node not in visited:
+            visited.append(edge.to_node)
+            visited.append(Get_node_connections(edge.to_node, visited))
+    return visited
+
+
+def Get_connected_graphs(graph):
+    graphs = []
+    not_visited = graph.nodes
+    curr_graph = Graph([])
     
+    while len(not_visited) > 0:
+        node = not_visited[0]
+        nodes = node.get_connections()
+        for node in nodes:
+            not_visited.remove(node)
+            curr_graph.add_node(node)
+            
+        graphs.append(curr_graph)
+            
 
 Test_count = int(input())
 
@@ -169,7 +193,8 @@ for tc in range(Test_count):
         graph.nodes[node_num1 - 1].Add_edge_from(weight, graph.nodes[node_num0 - 1])
         # print("added {0} <-> {1} ({2} <-> {3}) weight: {4}".format(node_num0 - 1, node_num1 - 1, \
         #     graph.nodes[node_num0 - 1].letter, graph.nodes[node_num1 - 1].letter, weight))
-        
+     
+    # graphs = Get_connected_graphs(graph, [])
         
     # total_length = 0
     # curr_point = []
@@ -246,7 +271,11 @@ for tc in range(Test_count):
     for i in curr_points:
         if i[1] < min_dist or min_dist == -1:
             min_dist = i[1]
-    print(min_dist)
+            
+    if min_dist == float("inf"):
+        print(-1)
+    else:
+        print(min_dist)
             
         
 
