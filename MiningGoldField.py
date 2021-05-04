@@ -101,14 +101,16 @@ def Get_number_from_factor(factor):
 
 T = int(input()) # test count
 # answer = []
+N = 1
 
 for i in range(T):
     N = int(input())
+    # N += 1
     curr_answer = 0
     
     if N < 2:
         print(0)
-        break
+        break #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! breaks for
     
     if N % 2 == 0: # only 1 type
         type1_count = N // 2
@@ -124,20 +126,24 @@ for i in range(T):
     n = type1_count + type2_count
     k = type2_count
     curr_answer += previous_c % simple_modulo
-    type2_count += 2
-    type1_count -= 3
+    # type2_count += 2
+    # type1_count -= 3
     
         
-    while type1_count >= type2_count: # replace 3 type_1 and 2 type_2 (6 = 2 * 3 = 3 * 2)
-        print (n - k , k)
+    while n - k - 3 >= k + 2: # type1_count >= type2_count: # replace 3 type_1 and 2 type_2 (6 = 2 * 3 = 3 * 2)
+    # (n * ... * (n - k - 1) ) / k! -> (n - 1) * .. * (n - k - 2) // (k + 2)!
+        # print (n - k , k)
+        # print (previous_c, (n - k), (n - k - 1), (n - k - 2), "//", n , (k + 1) , (k + 2))
         new_koef = previous_c * (n - k) * (n - k - 1) * (n - k - 2) // n // (k + 1) // (k + 2)
         previous_c = (new_koef) % simple_modulo
-        print(previous_c)
+        # print(previous_c, "n and k: ", n - 1, k + 2)
         curr_answer = (curr_answer + previous_c) % simple_modulo
-        type2_count += 2
-        type1_count -= 3
-        n = type1_count + type2_count
-        k = type2_count
+        # n = type1_count + type2_count
+        # k = type2_count
+        # type2_count += 2
+        # type1_count -= 3
+        n -= 1
+        k += 2
         
     if N % 3 == 0: # only 2 type
         type1_count = 0 
@@ -159,19 +165,22 @@ for i in range(T):
         curr_answer += previous_c % simple_modulo
     n = type1_count + type2_count
     k = type1_count
-    type2_count -= 2
-    type1_count += 3
+    # type2_count -= 2
+    # type1_count += 3
         
-    while type2_count > type1_count: # replace 3 type_1 and 2 type_2 (6 = 2 * 3 = 3 * 2)
+    while n - k - 2 > k + 3: # type2_count > type1_count: # replace 3 type_1 and 2 type_2 (6 = 2 * 3 = 3 * 2) 
+    # (n * ... * (n - k - 1) ) / k! -> ( (n + 1) * .. * (n - k - 1) / (k + 3)! ) 
 
-        print (n - k, k)
-        new_koef = previous_c * (n + 1) * (n - k) * (n - k - 1) * (n - k - 2) * (n - k - 3) // (k + 1) // (k + 2) // (k + 3)
+        new_koef = previous_c * (n + 1) * (n - k) * (n - k - 1) // (k + 1) // (k + 2) // (k + 3)
         previous_c = (new_koef) % simple_modulo
+        # print(previous_c, "n and k: ", n + 1, k + 3)
         curr_answer = (curr_answer + previous_c) % simple_modulo
-        type2_count -= 2
-        type1_count += 3
-        n = type1_count + type2_count
-        k = type1_count
+        # n = type1_count + type2_count
+        # k = type1_count
+        # type2_count -= 2
+        # type1_count += 3
+        n += 1
+        k += 3
         
     print(curr_answer)
         
