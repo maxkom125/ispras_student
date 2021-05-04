@@ -98,13 +98,68 @@ def Get_number_from_factor(factor):
         
     return xxx
 
+def Mul_factor_numbers(factor, array_of_numbers, multiply = 1): # change factor; if multiply != 1 => div
+    for x in array_of_numbers:
+        factor_x = Factor(x)
+        # print(factor_x)
+        Add_factors(factor, factor_x, multiply)
+    return
 
+def Add_factors(factor, add_factor, add = 1): # change factor; if add != 1 => subtract
+    if add == 1:
+        for f in add_factor.keys():
+            try:
+                factor[f] += add_factor[f]
+            except KeyError:
+                factor[f]  = add_factor[f]
+    else:
+        for f in add_factor.keys():
+            try:
+                factor[f] -= add_factor[f]
+            except KeyError:
+                print("Key Error, can't subtruct. Key: ", f)
+    return
+            
+def Ans(N): #a Ans(n) + b Ans(n - 1) + c Ans(n - 2) =
+            #(a + b) Ans(n - 3) + (a + b + c) Ans(n - 4) + (a + c) Ans(n - 5)
+    if N <= 1:
+        return 0
+    elif N <= 4:
+        return 1
+    elif N <= 6:
+        return 2
+    elif N == 7:
+        return 3
+    
+    a = 1
+    b = 2
+    c = 1
+    curr_N = N - 4
+    while curr_N >= 7:
+        # print(a, b, c, "curr_N: ", curr_N)
+        new_a = (a + b) % simple_modulo
+        new_b = (a + b + c) % simple_modulo
+        new_c = (a + c) % simple_modulo
+        a, b, c = new_a, new_b, new_c
+        # print(a, b, c, "curr_N: ", curr_N)
+        curr_N -= 3
+        
+    if curr_N == 4:       
+        return a + b + c
+    elif curr_N == 5:
+        return 2 * a + b + c
+    elif curr_N == 6:
+        return 2 * a + 2 * b + c
+    
 T = int(input()) # test count
 # answer = []
 N = 1
 
+
 for i in range(T):
     N = int(input())
+    print (Ans(N) % simple_modulo)
+    continue
     # N += 1
     curr_answer = 0
     
@@ -116,13 +171,15 @@ for i in range(T):
         type1_count = N // 2
         type2_count = 0
         previous_c = 1
+        curr_c = dict()
     
     else:
         type1_count = (N - 3) // 2
         type2_count = 1
         previous_c = type1_count + 1
+        curr_c = Factor(type1_count + 1)
         
-    print("type1 ", previous_c)
+    print("type1 ", curr_c)
     n = type1_count + type2_count
     k = type2_count
     curr_answer += previous_c % simple_modulo
@@ -134,7 +191,14 @@ for i in range(T):
     # (n * ... * (n - k - 1) ) / k! -> (n - 1) * .. * (n - k - 2) // (k + 2)!
         # print (n - k , k)
         # print (previous_c, (n - k), (n - k - 1), (n - k - 2), "//", n , (k + 1) , (k + 2))
+        if (previous_c * (n - k) * (n - k - 1) * (n - k - 2) % (n * (k + 1) * (k + 2)) != 0):
+            print("ERROR")
         new_koef = previous_c * (n - k) * (n - k - 1) * (n - k - 2) // n // (k + 1) // (k + 2)
+        
+        # Mul_factor_numbers(curr_c, [(n - k), (n - k - 1), (n - k - 2)]) # mul
+        # Mul_factor_numbers(curr_c, [n , (k + 1) , (k + 2)], -1)         # div
+        # print(curr_c, Get_number_from_factor(curr_c))
+            
         previous_c = (new_koef) % simple_modulo
         # print(previous_c, "n and k: ", n - 1, k + 2)
         curr_answer = (curr_answer + previous_c) % simple_modulo
@@ -171,6 +235,8 @@ for i in range(T):
     while n - k - 2 > k + 3: # type2_count > type1_count: # replace 3 type_1 and 2 type_2 (6 = 2 * 3 = 3 * 2) 
     # (n * ... * (n - k - 1) ) / k! -> ( (n + 1) * .. * (n - k - 1) / (k + 3)! ) 
 
+        if (previous_c * (n + 1) * (n - k) * (n - k - 1) % ((k + 1) * (k + 2) * (k + 3)) != 0):
+            print("ERROR")
         new_koef = previous_c * (n + 1) * (n - k) * (n - k - 1) // (k + 1) // (k + 2) // (k + 3)
         previous_c = (new_koef) % simple_modulo
         # print(previous_c, "n and k: ", n + 1, k + 3)
@@ -184,59 +250,6 @@ for i in range(T):
         
     print(curr_answer)
         
-x = input()        
-
-for i in range(T):
-    N = int(input())
-    curr_answer = 0
-    
-    if N < 2:
-        print(0)
-        break
-    
-    if N % 2 == 0: # only 1 type
-        type1_count = N // 2
-        type2_count = 0
-    
-    else:
-        type1_count = (N - 3) // 2
-        type2_count = 1
-        
-    while type1_count >= 0: # replace 3 type_1 and 2 type_2 (6 = 2 * 3 = 3 * 2)
-        # curr_answer += C(type1_count + type2_count, type1_count) # ways to arrange C(n, k)
-        numerator, denominator = C_modulo(type1_count + type2_count, type1_count)        
-        print( numerator, denominator)
-        # print("n , d ", numerator, denominator)
-        factor_numerator = Factor(numerator)
-        factor_denominator = Factor(denominator)
-        print(factor_numerator, factor_denominator)
-        for key in factor_numerator.keys():
-            while factor_numerator[key] > 0:
-                try:
-                    if factor_denominator[key] > 0:
-                        factor_denominator[key] -= 1
-                        factor_numerator[key]   -= 1
-                    else:
-                        break
-                    
-                except KeyError:
-                    break
-                
-        print(factor_numerator, factor_denominator)
-        numerator, denominator = Get_number_from_factor(factor_numerator), Get_number_from_factor(factor_denominator)
-        while numerator % denominator != 0:
-            numerator += simple_modulo
-        print("x")
-            
-        if numerator % denominator == simple_modulo:
-            numerator = 0
-            
-        curr_answer += numerator // denominator
-        # print(curr_answer, "!!!!")
-        type2_count += 2
-        type1_count -= 3
-        
-    print(curr_answer % simple_modulo)
     
 # for i in answer: #######18!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #     print(i % simple_modulo)
